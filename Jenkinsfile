@@ -3,7 +3,7 @@ node {
         stage('Build') {
             echo 'Starting Build stage...'
             docker.image('python:2-alpine').inside {
-                sh 'python -m py_compile sources/add2vals.py sources/calc.py || exit 1'
+                sh 'python -m py_compile ./sources/add2vals.py ./sources/calc.py || exit 1'
             }
             echo 'Build stage completed successfully.'
         }
@@ -12,7 +12,7 @@ node {
             echo 'Starting Test stage...'
             docker.image('qnib/pytest').inside {
                 try {
-                    sh 'py.test --verbose --junit-xml test-reports/results.xml sources/test_calc.py || exit 1'
+                    sh 'py.test --verbose --junit-xml test-reports/results.xml ./sources/test_calc.py || exit 1'
                 } finally {
                     echo 'Publishing test results...'
                     junit 'test-reports/results.xml'
