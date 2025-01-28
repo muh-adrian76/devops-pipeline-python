@@ -19,14 +19,7 @@ node {
         }
 
         stage('Manual Approval') {
-            def jawaban = input message: 'Lanjutkan ke tahap Deploy?',
-                parameters: [booleanParam(defaultValue: false)]
-            
-            if (jawaban) {
-                echo 'Melanjutkan ke tahap Deploy.'
-            } else {
-                error 'Pipeline dihentikan.'
-            }
+            input message: 'Lanjutkan ke tahap Deploy?'
         }
 
         stage('Deploy') {
