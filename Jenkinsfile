@@ -24,7 +24,8 @@ node {
         stage('Deploy') {
             def dockerArgs = '--privileged -v /var/jenkins_home:/var/jenkins_home'
 
-            docker.image('cdrx/pyinstaller-linux:python2').withRun(dockerArgs) { c ->
+            docker.image('python:2-alpine').withRun(dockerArgs) { c ->
+                sh "docker exec ${c.id} pip install pyinstaller"
                 sh "docker exec ${c.id} pyinstaller --onefile sources/add2vals.py"
                 archiveArtifacts 'dist/add2vals'
                 sh "docker exec ${c.id} ./dist/add2vals &"
