@@ -22,7 +22,7 @@ node {
         }
 
         stage('Deploy') {
-            docker.image('cdrx/pyinstaller-linux:python2').withRun('-v /var/jenkins_home:/var/jenkins_home') { container -> sh "docker exec ${container.id} pyinstaller --onefile sources/add2vals.py"
+            docker.image('cdrx/pyinstaller-linux:python2').withRun('-v /var/jenkins_home:/var/jenkins_home') { container -> sh "docker exec ${container.id} pyinstaller --onefile sources/add2vals.py" }
             archiveArtifacts 'dist/add2vals'
 
             sh './dist/add2vals &'
