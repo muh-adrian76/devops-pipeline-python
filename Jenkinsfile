@@ -1,9 +1,5 @@
 node {
     try {
-        options {
-            skipStagesAfterUnstable()
-        }
-        
         stage('Build') {
             docker.image('python:2-alpine').inside {
                 checkout scm
