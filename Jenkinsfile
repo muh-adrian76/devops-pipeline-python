@@ -10,7 +10,6 @@ pipeline {
             }
             steps {
                 checkout scm
-                sh 'ls -l ./sources'
                 sh 'python -m py_compile ./sources/add2vals.py ./sources/calc.py || exit 1'
             }
         }
@@ -44,10 +43,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'pwd && ls -la'
-                sh 'ls -l sources'
                 sh 'pyinstaller --onefile sources/add2vals.py'
-                sh 'ls -l dist'
                 archiveArtifacts artifacts: 'dist/add2vals', allowEmptyArchive: false
                 sh './dist/add2vals &'
                 echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
