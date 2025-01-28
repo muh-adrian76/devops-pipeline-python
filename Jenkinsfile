@@ -22,14 +22,18 @@ node {
         }
 
         stage('Deploy') {
-            docker.image('cdrx/pyinstaller-linux:python2').withRun('-v /var/jenkins_home:/var/jenkins_home') { container -> sh "docker exec ${container.id} pyinstaller --onefile sources/add2vals.py" }
-            archiveArtifacts 'dist/add2vals'
+            def dockerArgs = '--privileged -v /var/jenkins_home:/var/jenkins_home'
 
-            sh './dist/add2vals &'
-            echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
-            sleep(time: 1, unit: 'MINUTES')
-            sh 'pkill -f add2vals'
-            echo 'Aplikasi berhasil dihentikan.'
+            docker.image('cdrx/pyinstaller-linux:python2').inside(dockerArgs) {
+                sh 'pyinstaller --onefile sources/add2vals.py'
+                archiveArtifacts 'dist/add2vals'
+
+                sh './dist/add2vals &'
+                echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
+                sleep(time: 1, unit: 'MINUTES')
+                sh 'pkill -f add2vals'
+                echo 'Aplikasi berhasil dihentikan.'
+            }
         }
     } catch (Exception e) {
         echo "Pipeline gagal: ${e.message}"
