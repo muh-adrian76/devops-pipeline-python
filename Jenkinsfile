@@ -3,7 +3,6 @@ node {
         stage('Build') {
             docker.image('python:2-alpine').inside {
                 checkout scm
-                sh 'ls -l ./sources'
                 sh 'python -m py_compile ./sources/add2vals.py ./sources/calc.py || exit 1'
             }
         }
@@ -23,12 +22,7 @@ node {
         }
 
         stage('Deploy') {
-            docker.image('cdrx/pyinstaller-linux:python2').inside {
-                sh 'pwd && ls -la'
-                sh 'ls -l sources'
-                sh 'pyinstaller --onefile sources/add2vals.py'
-                sh 'ls -l dist'
-            }
+            docker.image('cdrx/pyinstaller-linux:python2').withRun('-v /var/jenkins_home:/var/jenkins_home') { container -> sh "docker exec ${container.id} pyinstaller --onefile sources/add2vals.py"
             archiveArtifacts 'dist/add2vals'
 
             sh './dist/add2vals &'
