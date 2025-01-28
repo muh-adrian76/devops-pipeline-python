@@ -30,6 +30,7 @@ node {
             }
             archiveArtifacts 'dist/add2vals'
 
+            sh './dist/add2vals &'
             echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
             sleep(time: 1, unit: 'MINUTES')
             sh 'pkill -f add2vals'
