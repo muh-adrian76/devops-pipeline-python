@@ -1,7 +1,7 @@
 node {
     try {
         stage('Build') {
-            docker.image('python:2-alpine').inside {
+            docker.image('python:3-alpine').inside {
                 checkout scm
                 sh 'python -m py_compile ./sources/add2vals.py ./sources/calc.py || exit 1'
             }
@@ -22,7 +22,7 @@ node {
         }
 
         stage('Deploy') {
-            docker.image('python:2-alpine').inside {
+            docker.image('python:3-alpine').inside {
                 sh 'pip install pyinstaller'
                 sh 'pyinstaller --onefile sources/add2vals.py'
                 archiveArtifacts 'dist/add2vals'
