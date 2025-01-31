@@ -1,41 +1,40 @@
-pipeline {
-    agent any
-    stages {
+node {
+    try {
         stage('Build') {
-            steps {
-                sh 'python -m py_compile sources/add2vals.py sources/calc.py'
-                stash(name: 'compiled-results', includes: 'sources/*.py*')
+            docker.image('python:2-alpine').inside {
+                checkout scm
+                sh 'python -m py_compile ./sources/add2vals.py ./sources/calc.py || exit 1'
             }
         }
+
         stage('Test') {
-            steps {
-                sh 'py.test --junit-xml test-reports/results.xml sources/test_calc.py'
-            }
-            post {
-                always {
+            docker.image('qnib/pytest').inside {
+                try {
+                    sh 'py.test --verbose --junit-xml test-reports/results.xml ./sources/test_calc.py || exit 1'
+                } finally {
                     junit 'test-reports/results.xml'
                 }
             }
         }
+
         stage('Manual Approval') {
-            steps {
-                input message: 'Lanjutkan ke tahap Deploy?'
+            input message: 'Lanjutkan ke tahap Deploy?'
+        }
+
+        stage('Deploy') {
+            docker.image('cdrx/pyinstaller-linux:python2').inside('--user root') {
+                sh 'pyinstaller --onefile sources/add2vals.py'
+                archiveArtifacts 'dist/add2vals'
+
+                sh './dist/add2vals &'
+                echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
+                sleep(time: 1, unit: 'MINUTES')
+                sh 'pkill -f add2vals'
+                echo 'Aplikasi berhasil dihentikan.'
             }
         }
-        stage('Deploy') { 
-            steps {
-                sh "pyinstaller --onefile sources/add2vals.py" 
-            }
-            post {
-                success {
-                    archiveArtifacts 'dist/add2vals' 
-                    sh './dist/add2vals &'
-                    echo 'Aplikasi berhasil di-deploy dan akan dijalankan selama 1 menit.'
-                    sleep(time: 1, unit: 'MINUTES')
-                    sh 'pkill -f add2vals'
-                    echo 'Aplikasi berhasil dihentikan.'
-                }
-            }
-        }
+    } catch (Exception e) {
+        echo "Pipeline gagal: ${e.message}"
+        throw e
     }
 }
