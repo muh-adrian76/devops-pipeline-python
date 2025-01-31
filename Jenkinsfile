@@ -23,7 +23,6 @@ node {
 
         stage('Deploy') {
             docker.image('python:3').inside('--user root --entrypoint=""') {
-                sh 'apk add --no-cache binutils'
                 sh 'pip install pyinstaller'
                 sh 'pyinstaller --onefile sources/add2vals.py'
                 archiveArtifacts 'dist/add2vals'
