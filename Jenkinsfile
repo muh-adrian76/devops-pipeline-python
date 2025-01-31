@@ -22,7 +22,7 @@ node {
         }
 
         stage('Deploy') {
-            docker.image('python:3-alpine').inside {
+            docker.image('python:3-alpine').inside('--user root --entrypoint=""') {
                 sh 'pip install pyinstaller'
                 sh 'pyinstaller --onefile sources/add2vals.py'
                 archiveArtifacts 'dist/add2vals'
